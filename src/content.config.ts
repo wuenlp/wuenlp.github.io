@@ -21,8 +21,8 @@ const team = defineCollection({
   schema: z.object({
     name: z.string(),
     role: z.string(),
-    // 'pi' | 'postdoc' | 'phd' | 'master'
-    group: z.enum(['pi', 'postdoc', 'phd', 'master', 'student']),
+    // 'researcher' | 'student-researcher' | 'admin'
+    group: z.enum(['researcher', 'student-researcher', 'admin']),
     // sort order within group (lower = first)
     order: z.number().default(99),
     photo: z.string().optional(),   // URL or path under /public
@@ -64,6 +64,7 @@ const news = defineCollection({
   schema: z.object({
     title: z.string(),
     date: z.date(),
+    image: z.string().optional(),
   })
 });
 
@@ -72,7 +73,7 @@ const settings = defineCollection({
   loader: glob({ pattern: "**/*.md", base: "./src/content/settings" }),
   schema: z.object({
     siteName: z.string(),
-    heroTagline: z.string(),
+    heroTagline: z.string().optional(),
     heroHeadlineLine1: z.string(),
     heroHeadlineLine2: z.string(),
     heroBody: z.string(),

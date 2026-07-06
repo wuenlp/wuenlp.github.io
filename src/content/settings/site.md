@@ -1,10 +1,9 @@
 ---
 siteName: "WüNLP"
-heroTagline: "Prof. Dr. Go Go Glavas"
-heroHeadlineLine1: "Natural"
-heroHeadlineLine2: "Language Processing"
+heroHeadlineLine1: "Natural Language Processing"
+heroHeadlineLine2: "@ Uni Würzburg"
 heroBody: "We at the Chair for Natural Language Processing study machines that can understand human language - in fact, we try to make them understand many different human languages. We primarily focus on written text but also work with speech as well as as vision-language models. Multilinguality baby! "
-heroImageUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuD432lkQmNR3elOj-shWB3HeAR72cJxLjgLTgHgKvXCHaXQe2075cr4U3p3hhck520B0altVPMEuBy3H5doGQgWMtDkW7iJNi4c-jqDxHM5brzuy4AN0j_x-yO8fUuPGJZBL-SvIt6D1zVS5qsx4oSGgUlsmnVMiNBI4YfTEpNm1249zenE_0GL6MWgzggJE4w5RaVjU2KI9abtRbTjezTP13HHUyIHDCH-lvj03yhD97ENcjcG8kS6_O8l7_N1xZvsclWiKHKZTWI"
+heroImageUrl: "/hero-wordcloud.png"
 featuredResearchTitle: "Low-Resource Language Modeling"
 featuredResearchBody: "At our chair we focus on advancing the capability of Text, VisionText and Audio models across low-resource languages. Good for humanity, good for papers."
 contactEmail: "nlp@uni-wuerzburg.de"

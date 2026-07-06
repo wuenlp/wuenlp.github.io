@@ -27,7 +27,7 @@ function fmtDate(d: Date) {
                 <img
                     src={site.heroImageUrl}
                     alt="Abstract digital network visualization"
-                    class="w-full h-full object-cover opacity-70"
+                    class="w-full h-full object-cover opacity-20"
                 />
             )}
             <!-- Gradient from left (opaque) fading out on the right to reveal the image, adjusted to keep wide text readable -->
@@ -35,30 +35,29 @@ function fmtDate(d: Date) {
         </div>
 
         <!-- Hero text: wide column -->
-        <div class="relative z-10 max-w-4xl">
-            <div class="flex items-center gap-6 md:gap-8 mb-8">
-                <img
-                    src={`${import.meta.env.BASE_URL}logo.svg`}
-                    alt="WüNLP Logo"
-                    class="h-20 sm:h-24 md:h-32 w-auto shrink-0"
-                />
-                <h1 class="font-headline text-3xl sm:text-4xl md:text-5xl font-bold leading-tight text-on-surface whitespace-nowrap relative -top-[12px]">
+        <div class="relative z-10 max-w-5xl flex flex-col lg:flex-row items-center justify-between w-full">
+            <div class="flex-1 max-w-3xl">
+                <p class="text-secondary font-label uppercase tracking-widest text-sm mb-4 font-semibold">{site.heroTagline}</p>
+                <h1 class="font-headline text-5xl md:text-7xl font-bold leading-tight mb-8 text-on-surface">
                     {site.heroHeadlineLine1} <br/>
                     <span class="text-primary">{site.heroHeadlineLine2}</span>
                 </h1>
+                <!-- Body text is max-w-4xl, readable because the gradient solidifies the left 60-70% -->
+                <p class="font-body text-xl text-on-surface-variant leading-relaxed mb-10">
+                    {site.heroBody}
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <a href={`${import.meta.env.BASE_URL}team`} class="bg-primary text-on-primary px-8 py-4 rounded-lg font-label font-semibold shadow-md hover:bg-primary-container transition-colors flex items-center justify-center gap-2">
+                        Meet Our Team
+                        <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+                    </a>
+                    <a href={`${import.meta.env.BASE_URL}publications`} class="px-8 py-4 rounded-lg font-label font-semibold text-primary border border-outline-variant hover:bg-surface-container-low transition-colors flex items-center justify-center text-center">
+                        Read Latest Papers
+                    </a>
+                </div>
             </div>
-            <!-- Body text is max-w-4xl, readable because the gradient solidifies the left 60-70% -->
-            <p class="font-body text-xl text-on-surface-variant leading-relaxed mb-10">
-                {site.heroBody}
-            </p>
-            <div class="flex flex-col sm:flex-row gap-4">
-                <a href={`${import.meta.env.BASE_URL}team`} class="bg-primary text-on-primary px-8 py-4 rounded-lg font-label font-semibold shadow-md hover:bg-primary-container transition-colors flex items-center justify-center gap-2">
-                    Meet Our Team
-                    <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
-                </a>
-                <a href={`${import.meta.env.BASE_URL}publications`} class="px-8 py-4 rounded-lg font-label font-semibold text-primary border border-outline-variant hover:bg-surface-container-low transition-colors flex items-center justify-center text-center">
-                    Read Latest Papers
-                </a>
+            <div class="mt-12 lg:mt-0 lg:ml-12 shrink-0">
+                <img src="/logo.svg" alt="NLP Logo" class="w-48 lg:w-64 h-auto object-contain drop-shadow-lg" />
             </div>
         </div>
     </section>
