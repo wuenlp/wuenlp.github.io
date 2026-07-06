@@ -24,7 +24,7 @@ const sortedPublications = allPublications.sort((a, b) => b.data.date.valueOf() 
                     <div class="flex space-x-2" id="year-filters">
                         <button class="year-btn bg-primary text-on-primary font-body text-sm px-4 py-2 rounded-full shadow-[0_4px_24px_rgba(9,29,46,0.04)] transition-colors" data-year="all">All</button>
                         {[...new Set(sortedPublications.map(p => p.data.date.getFullYear()))].sort((a,b)=>b-a).map(year => (
-                            <button class="year-btn bg-surface-container-lowest text-on-surface font-body text-sm px-4 py-2 rounded-full shadow-[0_4px_24px_rgba(9,29,46,0.04)] hover:bg-surface-container-highest transition-colors" data-year={year}>{year}</button>
+                            <button class="year-btn bg-surface-container-lowest text-on-surface font-body text-sm px-4 py-2 rounded-full shadow-[0_4px_24px_rgba(9,29,46,0.04)] hover:bg-primary-container hover:text-on-primary-container hover:border-primary transition-colors" data-year={year}>{year}</button>
                         ))}
                     </div>
                 </div>
@@ -55,8 +55,8 @@ const sortedPublications = allPublications.sort((a, b) => b.data.date.valueOf() 
                             
                             <div class="flex flex-wrap gap-4 mt-2">
                                 {pub.data.pdfUrl && (
-                                    <a href={pub.data.pdfUrl} target="_blank" rel="noopener noreferrer" class="inline-flex items-center text-primary font-body text-sm font-medium hover:underline underline-offset-4 decoration-primary-container transition-all bg-surface-container-lowest px-3 py-1.5 rounded-md border border-outline-variant shadow-sm hover:shadow">
-                                        <span class="material-symbols-outlined text-[18px] mr-1.5">auto_stories</span> arXiv
+                                    <a href={pub.data.pdfUrl} target="_blank" rel="noopener noreferrer" class="inline-flex items-center text-primary font-body text-sm font-medium hover:bg-primary-container hover:text-on-primary-container hover:border-primary transition-all bg-surface-container-lowest px-3 py-1.5 rounded-md border border-outline-variant shadow-sm hover:shadow">
+                                        <span class="material-symbols-outlined text-[18px] mr-1.5">picture_as_pdf</span> Get PDF
                                     </a>
                                 )}
                             </div>
@@ -72,7 +72,7 @@ const sortedPublications = allPublications.sort((a, b) => b.data.date.valueOf() 
 
         <!-- Pagination (Simple) -->
         <div class="mt-12 flex justify-center hidden">
-            <button class="text-primary font-body font-semibold px-6 py-2 rounded-lg border border-outline-variant hover:bg-surface-container-highest transition-colors">Load More</button>
+            <button class="text-primary font-body font-semibold px-6 py-2 rounded-lg border border-outline-variant hover:bg-primary-container hover:text-on-primary-container hover:border-primary transition-colors">Load More</button>
         </div>
     </div>
 </Layout>

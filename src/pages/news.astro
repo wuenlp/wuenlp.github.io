@@ -25,7 +25,10 @@ function fmtDate(d: Date) {
                     <div class="w-full md:w-48 shrink-0 pt-1">
                         <div class="font-label text-sm text-outline">{fmtDate(item.data.date)}</div>
                     </div>
-                    <div class="flex-1">
+                    <div class="flex-1 w-full text-left">
+                        {item.data.image && (
+                            <img src={item.data.image} alt={item.data.title} class="mb-6 rounded-lg w-full max-h-96 object-cover shadow-sm" />
+                        )}
                         <h2 class="text-xl font-headline font-semibold text-on-surface group-hover:text-primary transition-colors mb-2">
                             {item.data.title}
                         </h2>

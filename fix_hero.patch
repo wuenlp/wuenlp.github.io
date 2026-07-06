@@ -1,0 +1,31 @@
+--- src/pages/index.astro	2026-04-25 10:00:00.000000000 -0400
++++ src/pages/index.astro	2026-04-25 10:00:00.000000000 -0400
+@@ -1,5 +1,6 @@
+ ---
+ import Layout from '../layouts/Layout.astro';
++import logo from '../assets/logo.svg';
+ import { getCollection } from 'astro:content';
+ 
+ const [settingsEntries, newsEntries] = await Promise.all([
+@@ -28,8 +29,8 @@
+         </div>
+ 
+         <!-- Hero text: wide column -->
+-        <div class="relative z-10 max-w-5xl flex flex-col lg:flex-row items-center justify-between w-full">
+-            <div class="flex-1 max-w-3xl">
++        <div class="relative z-10 flex flex-col lg:flex-row items-center justify-between w-full">
++            <div class="max-w-4xl relative z-10">
+                 <p class="text-secondary font-label uppercase tracking-widest text-sm mb-4 font-semibold">{site.heroTagline}</p>
+                 <h1 class="font-headline text-5xl md:text-7xl font-bold leading-tight mb-8 text-on-surface">
+                     {site.heroHeadlineLine1} <br/>
+@@ -51,8 +52,8 @@
+                     </a>
+                 </div>
+             </div>
+-            <div class="mt-12 lg:mt-0 lg:ml-12 shrink-0">
+-                <img src="/logo.svg" alt="NLP Logo" class="w-48 lg:w-64 h-auto object-contain drop-shadow-lg" />
++            <div class="mt-12 lg:mt-0 right-12 lg:absolute z-0 flex items-center justify-end w-full max-w-md pointer-events-none opacity-90">
++                <img src={logo.src} alt="WüNLP Logo" class="w-full max-w-[300px] h-auto object-contain drop-shadow-xl" />
+             </div>
+         </div>
+     </section>
