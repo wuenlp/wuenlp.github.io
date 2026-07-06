@@ -72,7 +72,7 @@ const settings = defineCollection({
   loader: glob({ pattern: "**/*.md", base: "./src/content/settings" }),
   schema: z.object({
     siteName: z.string(),
-    heroTagline: z.string(),
+    heroTagline: z.string().optional(),
     heroHeadlineLine1: z.string(),
     heroHeadlineLine2: z.string(),
     heroBody: z.string(),

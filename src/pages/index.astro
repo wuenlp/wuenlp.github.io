@@ -27,7 +27,7 @@ function fmtDate(d: Date) {
                 <img
                     src={site.heroImageUrl}
                     alt="Abstract digital network visualization"
-                    class="w-full h-full object-cover opacity-20"
+                    class="w-full h-full object-cover opacity-70"
                 />
             )}
             <!-- Gradient from left (opaque) fading out on the right to reveal the image, adjusted to keep wide text readable -->
@@ -36,11 +36,17 @@ function fmtDate(d: Date) {
 
         <!-- Hero text: wide column -->
         <div class="relative z-10 max-w-4xl">
-            <p class="text-secondary font-label uppercase tracking-widest text-sm mb-4 font-semibold">{site.heroTagline}</p>
-            <h1 class="font-headline text-5xl md:text-7xl font-bold leading-tight mb-8 text-on-surface">
-                {site.heroHeadlineLine1} <br/>
-                <span class="text-primary">{site.heroHeadlineLine2}</span>
-            </h1>
+            <div class="flex items-center gap-6 md:gap-8 mb-8">
+                <img
+                    src={`${import.meta.env.BASE_URL}logo.svg`}
+                    alt="WüNLP Logo"
+                    class="h-20 sm:h-24 md:h-32 w-auto shrink-0"
+                />
+                <h1 class="font-headline text-3xl sm:text-4xl md:text-5xl font-bold leading-tight text-on-surface whitespace-nowrap relative -top-[12px]">
+                    {site.heroHeadlineLine1} <br/>
+                    <span class="text-primary">{site.heroHeadlineLine2}</span>
+                </h1>
+            </div>
             <!-- Body text is max-w-4xl, readable because the gradient solidifies the left 60-70% -->
             <p class="font-body text-xl text-on-surface-variant leading-relaxed mb-10">
                 {site.heroBody}
