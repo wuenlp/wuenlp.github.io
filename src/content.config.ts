@@ -21,12 +21,15 @@ const team = defineCollection({
   schema: z.object({
     name: z.string(),
     role: z.string(),
-    // 'researcher' | 'student-researcher' | 'admin'
-    group: z.enum(['researcher', 'student-researcher', 'admin']),
+    // 'pi' | 'postdoc' | 'phd' | 'master'
+    group: z.enum(['pi', 'postdoc', 'phd', 'master', 'student', 'admin']),
     // sort order within group (lower = first)
     order: z.number().default(99),
     photo: z.string().optional(),   // URL or path under /public
+    cartoon: z.string().optional(), // optional illustration shown on hover
     researchFocus: z.string().optional(),
+    linkedinUrl: z.string().optional(),
+    scholarUrl: z.string().optional(),
     profileUrl: z.string().optional(),
     publicationsUrl: z.string().optional(),
     websiteUrl: z.string().optional(),

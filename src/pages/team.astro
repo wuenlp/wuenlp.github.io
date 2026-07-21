@@ -1,126 +1,67 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import TeamMemberCard from '../components/TeamMemberCard.astro';
 import { getCollection } from 'astro:content';
 
 const allTeam = await getCollection('team');
-const sort = (a: typeof allTeam[number], b: typeof allTeam[number]) => a.data.order - b.data.order;
+type Member = typeof allTeam[number];
 
-const researchers = allTeam.filter(m => m.data.group === 'researcher').sort(sort);
-const studentResearchers = allTeam.filter(m => m.data.group === 'student-researcher').sort(sort);
-const adminWorkers = allTeam.filter(m => m.data.group === 'admin').sort(sort);
+// Order within a section: by group rank first, then the per-member `order`, then name.
+const groupRank: Record<string, number> = { pi: 0, postdoc: 1, phd: 2, master: 3, student: 4, admin: 5 };
+const byRankThenOrder = (a: Member, b: Member) =>
+    (groupRank[a.data.group] - groupRank[b.data.group]) ||
+    (a.data.order - b.data.order) ||
+    a.data.name.localeCompare(b.data.name);
 
-const groupLabel: Record<string, string> = {
-    'researcher': 'Researcher',
-    'student-researcher': 'Student Researcher',
-    'admin': 'Admin Worker',
-};
-
-const groupBadgeClass: Record<string, string> = {
-    'researcher': 'bg-primary-container text-on-primary-container',
-    'student-researcher': 'bg-secondary-container text-on-secondary-container',
-    'admin': 'bg-tertiary-container text-on-tertiary-fixed',
-};
+const researchers = allTeam.filter(m => ['pi', 'postdoc', 'phd'].includes(m.data.group)).sort(byRankThenOrder);
+const students = allTeam.filter(m => ['master', 'student'].includes(m.data.group)).sort(byRankThenOrder);
+const admins = allTeam.filter(m => m.data.group === 'admin').sort(byRankThenOrder);
 ---
 
 <Layout title="Team">
     <div class="px-6 md:px-12 max-w-screen-2xl mx-auto w-full">
         <!-- Header -->
         <header class="mb-16 md:mb-24 max-w-4xl">
-            <span class="font-label text-sm font-semibold tracking-widest uppercase text-tertiary-container mb-4 block">The People Behind the Models</span>
-            <h1 class="font-headline text-5xl md:text-7xl font-bold text-on-surface leading-tight mb-6">Our Research Team</h1>
-            <p class="font-body text-lg md:text-xl text-on-surface-variant leading-relaxed max-w-2xl">
-                A multidisciplinary group of researchers, engineers, and students dedicated to advancing the frontier of Natural Language Processing and understanding human communication through computational methods.
-            </p>
+            <span class="font-label text-sm font-semibold tracking-widest uppercase text-tertiary-container mb-4 block">The People</span>
+            <h1 class="font-headline text-5xl md:text-7xl font-bold text-primary leading-tight">Our Team</h1>
         </header>
 
         <!-- Researchers -->
-        {researchers.length > 0 && (
-            <section class="mb-20">
-                <h2 class="font-headline text-3xl font-bold text-on-surface mb-10 border-l-4 border-primary pl-4">Researchers</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {researchers.map(member => (
-                        <div class="bg-surface-container-lowest rounded-xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_12px_24px_-8px_rgba(9,29,46,0.08)]">
-                            <div class="flex items-start justify-between mb-4">
-                                {member.data.photo ? (
-                                    <img src={member.data.photo} alt={member.data.name} class="w-16 h-16 rounded-full object-cover border-2 border-surface-container-low" />
-                                ) : (
-                                    <div class="w-16 h-16 rounded-full bg-surface-container-high flex items-center justify-center border-2 border-surface-container-low">
-                                        <span class="material-symbols-outlined text-3xl text-outline">person</span>
-                                    </div>
-                                )}
-                                <span class={`font-label text-xs font-bold px-2 py-1 rounded-sm uppercase tracking-wider ${groupBadgeClass[member.data.group]}`}>
-                                    {groupLabel[member.data.group]}
-                                </span>
-                            </div>
-                            <h3 class="font-headline text-xl font-bold text-on-surface mb-1">{member.data.name}</h3>
-                            {member.data.researchFocus && (
-                                <p class="font-body text-sm text-tertiary mb-4">{member.data.researchFocus}</p>
-                            )}
+        <section class="mb-20">
+            <h2 class="font-headline text-3xl font-bold text-on-surface mb-10 border-l-4 border-primary pl-4">Researchers</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                {researchers.map(member => <TeamMemberCard member={member} />)}
+            </div>
+        </section>
 
-                        </div>
-                    ))}
+        <!-- Students -->
+        <section class="mb-20">
+            <h2 class="font-headline text-3xl font-bold text-on-surface mb-10 border-l-4 border-secondary pl-4">Students</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                {students.map(member => <TeamMemberCard member={member} />)}
+            </div>
+        </section>
+
+        <!-- Administration -->
+        <section class="mb-20">
+            <h2 class="font-headline text-3xl font-bold text-on-surface mb-10 border-l-4 border-tertiary pl-4">Administration</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                {admins.map(member => <TeamMemberCard member={member} />)}
+            </div>
+        </section>
+
+        <!-- Join Us CTA -->
+        <section class="mb-20">
+            <div class="bg-inverse-surface text-inverse-on-surface rounded-xl p-10 md:p-16 flex flex-col md:flex-row gap-10 items-center justify-between">
+                <div class="w-full">
+                    <h2 class="font-headline text-3xl md:text-4xl font-bold mb-4 text-inverse-primary">
+                        Interested in Joining Us?
+                    </h2>
+                    <p class="font-body text-lg opacity-90 leading-relaxed">
+                        You really like what we do and would want to be part of the team? We may have some open positions right now. Or we may have them in the near future. In any case, if you're interested, <a href={`${import.meta.env.BASE_URL}contact`} class="font-semibold underline underline-offset-4 text-inverse-primary hover:opacity-80 transition-opacity">drop us a line</a>. Make sure to include a short statement of interest and a CV.
+                    </p>
                 </div>
-            </section>
-        )}
-
-        <!-- Student Researchers -->
-        {studentResearchers.length > 0 && (
-            <section class="mb-20">
-                <h2 class="font-headline text-3xl font-bold text-on-surface mb-10 border-l-4 border-secondary pl-4">Student Researchers</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {studentResearchers.map(member => (
-                        <div class="bg-surface-container-lowest rounded-xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_12px_24px_-8px_rgba(9,29,46,0.08)]">
-                            <div class="flex items-start justify-between mb-4">
-                                {member.data.photo ? (
-                                    <img src={member.data.photo} alt={member.data.name} class="w-16 h-16 rounded-full object-cover border-2 border-surface-container-low" />
-                                ) : (
-                                    <div class="w-16 h-16 rounded-full bg-surface-container-high flex items-center justify-center border-2 border-surface-container-low">
-                                        <span class="material-symbols-outlined text-3xl text-outline">person</span>
-                                    </div>
-                                )}
-                                <span class={`font-label text-xs font-bold px-2 py-1 rounded-sm uppercase tracking-wider ${groupBadgeClass[member.data.group]}`}>
-                                    {groupLabel[member.data.group]}
-                                </span>
-                            </div>
-                            <h3 class="font-headline text-xl font-bold text-on-surface mb-1">{member.data.name}</h3>
-                            {member.data.researchFocus && (
-                                <p class="font-body text-sm text-tertiary mb-4">{member.data.researchFocus}</p>
-                            )}
-
-                        </div>
-                    ))}
-                </div>
-            </section>
-        )}
-
-        <!-- Admin Workers -->
-        {adminWorkers.length > 0 && (
-            <section class="mb-20">
-                <h2 class="font-headline text-3xl font-bold text-on-surface mb-10 border-l-4 border-tertiary pl-4">Admin Workers</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {adminWorkers.map(member => (
-                        <div class="bg-surface-container-lowest rounded-xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_12px_24px_-8px_rgba(9,29,46,0.08)]">
-                            <div class="flex items-start justify-between mb-4">
-                                {member.data.photo ? (
-                                    <img src={member.data.photo} alt={member.data.name} class="w-16 h-16 rounded-full object-cover border-2 border-surface-container-low" />
-                                ) : (
-                                    <div class="w-16 h-16 rounded-full bg-surface-container-high flex items-center justify-center border-2 border-surface-container-low">
-                                        <span class="material-symbols-outlined text-3xl text-outline">person</span>
-                                    </div>
-                                )}
-                                <span class={`font-label text-xs font-bold px-2 py-1 rounded-sm uppercase tracking-wider ${groupBadgeClass[member.data.group]}`}>
-                                    {groupLabel[member.data.group]}
-                                </span>
-                            </div>
-                            <h3 class="font-headline text-xl font-bold text-on-surface mb-1">{member.data.name}</h3>
-                            {member.data.researchFocus && (
-                                <p class="font-body text-sm text-tertiary mb-4">{member.data.researchFocus}</p>
-                            )}
-
-                        </div>
-                    ))}
-                </div>
-            </section>
-        )}
+            </div>
+        </section>
     </div>
 </Layout>
