@@ -1,10 +1,8 @@
-# Astro Starter Kit: Basics
+# WüNLP website
 
-```sh
-npm create astro@latest -- --template basics
-```
+Source for <https://wuenlp.github.io>, the site of the Chair for Natural Language Processing at the University of Würzburg. Built with [Astro](https://astro.build); content lives as Markdown in `src/content/`.
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+> ✏️ **Want to edit content (your profile, news, publications, courses)?** See **[EDITING.md](./EDITING.md)** — no Astro knowledge needed.
 
 ## 🚀 Project Structure
 
