@@ -6,6 +6,6 @@ order: 2
 photo: "/team/sukannya.jpg"
 cartoon: "/team/sukannya_cartoon.jpg"
 researchFocus: "Research interests to be added."
-linkedinUrl: "#"
-scholarUrl: "#"
+linkedinUrl: "https://www.linkedin.com/in/sukannya-purkayastha-5144a3118"
+scholarUrl: "https://scholar.google.com/citations?user=SAhTZJIAAAAJ"
 ---

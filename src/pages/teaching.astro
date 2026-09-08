@@ -2,83 +2,136 @@
 import Layout from '../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
 
-const allCourses = await getCollection('courses');
-const sortedCourses = allCourses.sort((a, b) => a.data.order - b.data.order);
+const teachingEntries = await getCollection('courses');
 
-// Group by semester
-const bySemester: Record<string, typeof allCourses> = {};
-for (const course of sortedCourses) {
-    if (!bySemester[course.data.semester]) bySemester[course.data.semester] = [];
-    bySemester[course.data.semester].push(course);
-}
-const semesters = Object.keys(bySemester);
+// Semesters shown highest `order` first (newest at the top).
+const semesters = [...(teachingEntries[0]?.data.semesters ?? [])]
+    .sort((a, b) => b.order - a.order);
 
-const typeIcon: Record<string, string> = {
-    Lecture: 'school',
-    Seminar: 'groups',
-    Practical: 'terminal',
-};
+// Sections in fixed display order. `key` matches a course's `type` field.
+const SECTIONS = [
+    { key: 'regular', label: 'Regular Courses', icon: 'school' },
+    { key: 'seminar', label: 'Seminars', icon: 'groups' },
+    { key: 'praktikum', label: 'Praktika', icon: 'terminal' },
+] as const;
+
+// Degree-level badges. Bachelor = teal (secondary), Master = blue (primary).
+const LEVELS = {
+    bachelor: { label: 'Bachelor', class: 'bg-secondary text-on-secondary' },
+    master: { label: 'Master', class: 'bg-primary text-on-primary' },
+} as const;
+
+// A course's `level` may be a single value or a list; normalize to an array.
+const levelList = (level?: keyof typeof LEVELS | (keyof typeof LEVELS)[]) =>
+    level ? (Array.isArray(level) ? level : [level]) : [];
 ---
 
 <Layout title="Teaching">
-    <div class="px-6 md:px-12 max-w-screen-xl mx-auto w-full">
+    <div class="px-6 md:px-12 max-w-screen-2xl mx-auto w-full">
         <header class="mb-16">
-            <h1 class="text-[3.5rem] leading-tight font-headline text-on-surface mb-4">Teaching</h1>
-            <p class="text-xl font-body text-on-surface-variant max-w-3xl">
-                Courses offered by the WüNLP Chair at the University of Würzburg. To add or update a course, edit the files in <code class="font-mono text-sm bg-surface-container px-2 py-0.5 rounded">src/content/courses/</code>.
-            </p>
+            <h1 class="font-headline text-5xl md:text-7xl font-bold text-primary leading-tight">Teaching</h1>
         </header>
+
+        <!-- Thesis call-to-action -->
+        <a
+            href={`${import.meta.env.BASE_URL}theses`}
+            class="hero-gradient text-white rounded-xl p-6 md:p-7 mb-14 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 justify-between ambient-shadow group"
+        >
+            <div class="flex items-center gap-4">
+                <span class="material-symbols-outlined text-3xl shrink-0 hidden sm:block">school</span>
+                <div>
+                    <h2 class="font-headline text-lg md:text-xl font-bold leading-snug">Interested in a (bachelor or master) thesis at our Chair?</h2>
+                    <p class="font-body text-sm text-white/80 mt-0.5">We supervise theses across the full spectrum of NLP topics, with special emphasis on multilinguality, vision-language models, and model alignment and interpretability.</p>
+                </div>
+            </div>
+            <span class="shrink-0 inline-flex items-center gap-2 bg-white text-primary px-6 py-3 rounded-lg font-label font-semibold group-hover:bg-white/90 transition-colors">
+                Apply
+                <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+            </span>
+        </a>
+
+        <p class="text-xl font-body text-on-surface-variant max-w-3xl mb-12">
+            Below is a list of courses that we usually offer.
+        </p>
 
         {semesters.map(semester => (
             <section class="mb-16">
-                <h2 class="font-headline text-2xl font-bold text-on-surface mb-8 border-l-4 border-primary pl-4">{semester}</h2>
-                <div class="space-y-4">
-                    {bySemester[semester].map(course => (
-                        <div class="bg-surface-container-low rounded-xl p-6 hover:bg-surface-container-high transition-colors group">
-                            <div class="flex flex-col md:flex-row gap-4 items-start">
-                                <!-- Type badge & icon -->
-                                <div class="flex items-center gap-3 w-full md:w-56 shrink-0">
-                                    <div class="w-10 h-10 bg-surface-container-lowest rounded-lg flex items-center justify-center shadow-sm">
-                                        <span class="material-symbols-outlined text-xl text-primary">
-                                            {typeIcon[course.data.type] ?? 'book'}
-                                        </span>
-                                    </div>
-                                    <div>
-                                        <span class="block font-label text-xs uppercase tracking-wider text-outline">{course.data.type}</span>
-                                        {course.data.ects && (
-                                            <span class="block font-label text-xs text-outline">{course.data.ects} ECTS</span>
-                                        )}
-                                    </div>
-                                </div>
+                <h2 class="font-headline text-3xl font-bold text-on-surface mb-8 border-l-4 border-primary pl-4">{semester.name}</h2>
 
-                                <!-- Details -->
-                                <div class="flex-grow">
-                                    <h3 class="font-headline text-xl font-semibold text-on-surface group-hover:text-primary transition-colors mb-1">
-                                        {course.url ? (
-                                            <a href={course.data.url}>{course.data.title}</a>
-                                        ) : course.data.title}
-                                    </h3>
-                                    {course.data.lecturers && (
-                                        <p class="font-body text-sm text-on-surface-variant mb-2">{course.data.lecturers}</p>
-                                    )}
-                                    <p class="font-body text-sm text-on-surface-variant">{course.body?.trim()}</p>
-                                </div>
+                {SECTIONS.map(section => {
+                    const courses = semester.courses.filter(c => c.type === section.key);
+                    if (courses.length === 0) return null;
+                    return (
+                        <div class="mb-10">
+                            <h3 class="font-label text-sm font-semibold uppercase tracking-wider text-outline mb-4">{section.label}</h3>
+                            <div class="space-y-4">
+                                {courses.map(course => {
+                                    // Treat "#" / empty as "no external page yet" so the card isn't dead-clickable.
+                                    const href = course.url && course.url !== '#' ? course.url : null;
+                                    const cardClass = `block bg-surface-container-low rounded-xl p-6 transition-colors group ${href ? 'hover:bg-surface-container-high cursor-pointer' : ''}`;
+                                    const levels = levelList(course.level);
+                                    const body = (
+                                        <div class="flex flex-col md:flex-row gap-4 items-start">
+                                            <!-- Icon, ECTS & level -->
+                                            <div class="w-full md:w-40 shrink-0 space-y-3">
+                                                <div class="flex items-center gap-3">
+                                                    <div class="w-10 h-10 bg-surface-container-lowest rounded-lg flex items-center justify-center shadow-sm">
+                                                        <span class="material-symbols-outlined text-xl text-primary">{section.icon}</span>
+                                                    </div>
+                                                    {course.ects && (
+                                                        <span class="block font-label text-xs text-outline">{course.ects} ECTS</span>
+                                                    )}
+                                                </div>
+                                                {levels.length > 0 && (
+                                                    <div class="flex flex-wrap gap-1.5">
+                                                        {levels.map(l => (
+                                                            <span class={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-label font-semibold ${LEVELS[l].class}`}>{LEVELS[l].label}</span>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
 
-                                <!-- Language -->
-                                <div class="shrink-0 flex items-center gap-1 text-outline font-label text-sm">
-                                    <span class="material-symbols-outlined text-[16px]">language</span>
-                                    {course.data.language}
-                                </div>
+                                            <!-- Details -->
+                                            <div class="flex-grow">
+                                                <h4 class="font-headline text-xl font-semibold text-on-surface group-hover:text-primary transition-colors mb-1 flex items-center gap-1.5">
+                                                    {course.title}
+                                                    {href && (
+                                                        <span class="material-symbols-outlined text-[18px] text-outline opacity-0 group-hover:opacity-100 transition-opacity">open_in_new</span>
+                                                    )}
+                                                </h4>
+                                                {course.lecturers && (
+                                                    <p class="font-body text-sm text-on-surface-variant mb-2">{course.lecturers}</p>
+                                                )}
+                                                {course.description && (
+                                                    <p class="font-body text-sm text-on-surface-variant">{course.description}</p>
+                                                )}
+                                            </div>
+
+                                            <!-- Language -->
+                                            {course.language && (
+                                                <div class="shrink-0 flex items-center gap-1 text-outline font-label text-sm">
+                                                    <span class="material-symbols-outlined text-[16px]">language</span>
+                                                    {course.language}
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                    return href ? (
+                                        <a href={href} target="_blank" rel="noopener noreferrer" class={cardClass}>{body}</a>
+                                    ) : (
+                                        <div class={cardClass}>{body}</div>
+                                    );
+                                })}
                             </div>
                         </div>
-                    ))}
-                </div>
+                    );
+                })}
             </section>
         ))}
 
         {semesters.length === 0 && (
             <div class="text-center py-24 text-on-surface-variant font-body">
-                No courses yet. Add a file to <code class="font-mono text-sm bg-surface-container px-2 py-0.5 rounded">src/content/courses/</code> to get started.
+                No courses yet. Add entries to <code class="font-mono text-sm bg-surface-container px-2 py-0.5 rounded">src/content/courses/courses.md</code> to get started.
             </div>
         )}
     </div>

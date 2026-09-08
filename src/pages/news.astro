@@ -2,50 +2,152 @@
 import Layout from '../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
 
-const allNews = await getCollection('news');
-const sortedNews = allNews.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+// Each entry is a year file holding an `items` array; flatten and sort by date.
+const newsEntries = await getCollection('news');
+const sortedNews = newsEntries
+    .flatMap(e => e.data.items)
+    .sort((a, b) => b.date.valueOf() - a.date.valueOf());
+
+// Build-time year for the initial server-rendered state; the client script
+// re-applies against the visitor's actual current year on load.
+const currentYear = new Date().getFullYear();
 
 function fmtDate(d: Date) {
     return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 }
+
+// Stable anchor id per item (used by the home page's deep links).
+const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
+type Paper = { title: string; anthology?: string; arxiv?: string };
+
+function escapeHtml(s: string) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// Published paper -> ACL Anthology PDF; otherwise arXiv; otherwise no link.
+function paperUrl(p: Paper): string | null {
+    return p.anthology || p.arxiv || null;
+}
+
+// Turn the plain summary text into HTML, linking each paper title in place.
+function linkifySummary(summary: string, papers: Paper[]): string {
+    let html = escapeHtml(summary.trim());
+    for (const p of papers) {
+        const url = paperUrl(p);
+        if (!url) continue;
+        const title = escapeHtml(p.title);
+        const anchor = `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" class="text-primary font-semibold hover:underline underline-offset-2">${title}</a>`;
+        html = html.split(title).join(anchor);
+    }
+    return html;
+}
 ---
 
 <Layout title="News">
-    <div class="px-6 md:px-12 max-w-screen-xl mx-auto w-full">
+    <div class="px-6 md:px-12 max-w-screen-2xl mx-auto w-full">
         <header class="mb-16">
-            <h1 class="text-[3.5rem] leading-tight font-headline text-on-surface mb-4">News & Updates</h1>
+            <h1 class="font-headline text-5xl md:text-7xl font-bold text-primary leading-tight mb-4">News &amp; Updates</h1>
             <p class="text-xl font-body text-on-surface-variant max-w-3xl">
                 The latest announcements, achievements, and events from the WüNLP Chair.
             </p>
         </header>
 
-        <section class="space-y-6">
-            {sortedNews.map(item => (
-                <article id={item.id} class="p-8 bg-surface-container-low rounded-xl hover:bg-surface-container-high transition-all duration-300 group flex flex-col md:flex-row gap-6 items-start scroll-mt-24">
-                    <div class="w-full md:w-48 shrink-0 pt-1">
-                        <div class="font-label text-sm text-outline">{fmtDate(item.data.date)}</div>
+        <!-- News snippets. Items are tagged with their year; only the current year
+             shows until "load older news". A post with `papers` links each paper
+             title inline instead of linking the whole snippet. -->
+        <section id="news-list" class="space-y-4">
+            {sortedNews.map(item => {
+                const year = item.date.getFullYear();
+                const papers = item.papers ?? [];
+                const linkedPapers = papers.filter(p => paperUrl(p));
+                const usePaperLinks = linkedPapers.length > 0;
+                // Whole-snippet link only when there are no per-paper links to show.
+                const href = !usePaperLinks && item.url && item.url !== '#' ? item.url : null;
+                const cardClass = `news-item block p-6 md:p-8 bg-surface-container-low rounded-xl transition-colors group scroll-mt-24 ${href ? 'hover:bg-surface-container-high cursor-pointer' : ''}`;
+                const titleClass = `text-xl font-headline font-semibold text-on-surface transition-colors mb-2 flex items-center gap-1.5 ${href ? 'group-hover:text-primary' : ''}`;
+                const anchorId = slugify(item.title);
+                const body = (
+                    <div class="flex flex-col md:flex-row gap-4 md:gap-6 items-start">
+                        <div class="w-full md:w-44 shrink-0 pt-1">
+                            <div class="font-label text-sm text-outline">{fmtDate(item.date)}</div>
+                        </div>
+                        <div class="flex-1 w-full">
+                            <h2 class={titleClass}>
+                                {item.title}
+                                {href && (
+                                    <span class="material-symbols-outlined text-[18px] text-outline opacity-0 group-hover:opacity-100 transition-opacity shrink-0">open_in_new</span>
+                                )}
+                            </h2>
+                            {item.summary?.trim() && (
+                                usePaperLinks ? (
+                                    <p class="font-body text-sm text-on-surface-variant leading-relaxed" set:html={linkifySummary(item.summary, linkedPapers)} />
+                                ) : (
+                                    <p class="font-body text-sm text-on-surface-variant leading-relaxed">{item.summary.trim()}</p>
+                                )
+                            )}
+                        </div>
                     </div>
-                    <div class="flex-1 w-full text-left">
-                        {item.data.image && (
-                            <img src={item.data.image} alt={item.data.title} class="mb-6 rounded-lg w-full max-h-96 object-cover shadow-sm" />
-                        )}
-                        <h2 class="text-xl font-headline font-semibold text-on-surface group-hover:text-primary transition-colors mb-2">
-                            {item.data.title}
-                        </h2>
-                        {item.body?.trim() && (
-                            <p class="font-body text-sm text-on-surface-variant leading-relaxed">
-                                {item.body.trim()}
-                            </p>
-                        )}
-                    </div>
-                </article>
-            ))}
+                );
+                return href ? (
+                    <a id={anchorId} href={href} target="_blank" rel="noopener noreferrer" class={cardClass} data-year={year} hidden={year < currentYear}>{body}</a>
+                ) : (
+                    <div id={anchorId} class={cardClass} data-year={year} hidden={year < currentYear}>{body}</div>
+                );
+            })}
         </section>
+
+        <!-- Load older news -->
+        <div id="load-older-wrap" class="mt-10 text-center" hidden>
+            <button id="load-older" class="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-label font-semibold text-primary border border-outline-variant hover:bg-surface-container-low transition-colors">
+                <span class="material-symbols-outlined text-[18px]">history</span>
+                <span id="load-older-label">Load older news</span>
+            </button>
+        </div>
 
         {sortedNews.length === 0 && (
             <div class="text-center py-24 text-on-surface-variant font-body">
-                No news items yet. Add a file to <code class="font-mono text-sm bg-surface-container px-2 py-0.5 rounded">src/content/news/</code> to get started.
+                No news items yet. Add a year file (e.g. <code class="font-mono text-sm bg-surface-container px-2 py-0.5 rounded">src/content/news/2026.md</code>) with an <code class="font-mono text-sm bg-surface-container px-2 py-0.5 rounded">items:</code> list to get started.
             </div>
         )}
     </div>
+
+    <script>
+        const list = document.getElementById('news-list');
+        const wrap = document.getElementById('load-older-wrap');
+        const label = document.getElementById('load-older-label');
+        const btn = document.getElementById('load-older');
+
+        if (list && wrap && label && btn) {
+            const items = Array.from(list.querySelectorAll<HTMLElement>('.news-item'));
+            // Distinct years present, newest first.
+            const years = Array.from(new Set(items.map(el => Number(el.dataset.year)))).sort((a, b) => b - a);
+            const currentYear = new Date().getFullYear();
+
+            // Show items with year >= threshold. Start at the current year, but if no
+            // item is that recent, fall back to the newest available year so the list
+            // is never empty.
+            let threshold = currentYear;
+            if (!years.some(y => y >= threshold)) threshold = years.length ? years[0] : currentYear;
+
+            function apply() {
+                items.forEach(el => { el.hidden = Number(el.dataset.year) < threshold; });
+                const nextOlder = years.find(y => y < threshold);
+                if (nextOlder !== undefined) {
+                    label.textContent = `Load older news (${nextOlder})`;
+                    wrap.hidden = false;
+                } else {
+                    wrap.hidden = true;
+                }
+            }
+
+            btn.addEventListener('click', () => {
+                const nextOlder = years.find(y => y < threshold);
+                if (nextOlder !== undefined) threshold = nextOlder;
+                apply();
+            });
+
+            apply();
+        }
+    </script>
 </Layout>

@@ -1,0 +1,114 @@
+========================================================================
+ICONS FOR "IMPORTANT FACTS" CARDS  (and social header)
+========================================================================
+
+The `icon:` field on an importantFacts entry accepts ANY Google
+"Material Symbols" icon name. The site loads the "Material Symbols
+Outlined" font, so every icon in that set is available — thousands of
+them.
+
+Browse / search the full set here:
+    https://fonts.google.com/icons
+    (in the panel on the right, set "Material Symbols" + style "Outlined")
+
+How to use one:
+    Take the icon's name, lower_case_with_underscores, and put it in the
+    `icon:` field, e.g.
+
+        importantFacts:
+          - label: "Sports"
+            value: "Squash, swimming"
+            icon: "exercise"
+
+If you leave `icon` out, the card falls back to "auto_awesome".
+If you type a name that doesn't exist, the card shows the raw text
+instead of a glyph — so copy the name exactly from the gallery.
+
+------------------------------------------------------------------------
+CURATED PICKS THAT FIT "IMPORTANT FACTS"
+(all verified to exist in Material Symbols Outlined)
+------------------------------------------------------------------------
+
+Food & drink
+    local_cafe          coffee              emoji_food_beverage
+    local_bar           wine_bar            sports_bar
+    restaurant          local_dining        lunch_dining
+    ramen_dining        local_pizza         bakery_dining
+    cake                icecream            cookie
+    nutrition           egg_alt             local_drink
+    water_drop          blender             liquor
+
+Sports & activity
+    exercise            fitness_center      sports
+    directions_run      sprint              directions_walk
+    directions_bike     pedal_bike          hiking
+    pool                scuba_diving        surfing
+    kayaking            downhill_skiing     snowboarding
+    ice_skating         skateboarding       roller_skating
+    sports_tennis       sports_soccer       sports_basketball
+    sports_baseball     sports_football     sports_volleyball
+    sports_cricket      sports_golf         sports_handball
+    sports_hockey       sports_martial_arts sports_mma
+    self_improvement    paragliding         rowing
+
+Animals & nature
+    pets                cruelty_free        sound_detection_dog_barking
+    park                forest              potted_plant
+    yard                eco                 local_florist
+    spa                 bug_report          pest_control_rodent
+    grass               nature              agriculture
+
+Hobbies & making
+    palette             brush               draw
+    format_paint        photo_camera        camera
+    videocam            movie               theater_comedy
+    music_note          library_music       queue_music
+    piano               mic                 headphones
+    album               radio               graphic_eq
+    sports_esports      videogame_asset     casino
+    extension           toys                chess
+    handyman            construction        carpenter
+    checkroom           content_cut         local_florist
+
+Books, reading & writing
+    menu_book           auto_stories        book
+    book_2              local_library       import_contacts
+    chrome_reader_mode  history_edu         edit_note
+    edit                stylus_note         translate
+
+Travel & places
+    flight              travel_explore      public
+    language            map                 place
+    location_on         explore             home
+    cottage             apartment           castle
+    beach_access        landscape           terrain
+    festival            luggage             directions_car
+    train               directions_boat     rocket_launch
+
+Tech, work & science
+    code                terminal            computer
+    laptop_chromebook   memory              smart_toy
+    psychology          neurology           science
+    biotech             functions           calculate
+    data_object         model_training      network_intelligence
+    hub                 schema              dataset
+
+People, mood & fun
+    forum               chat                groups
+    diversity_3         handshake           volunteer_activism
+    favorite            mood                sentiment_very_satisfied
+    emoji_emotions      emoji_objects       emoji_events
+    emoji_nature        emoji_people        celebration
+    waving_hand         back_hand           thumb_up
+    interests           star                auto_awesome
+    bolt                lightbulb           whatshot
+
+Time, weather & misc
+    schedule            alarm               calendar_month
+    wb_sunny            nightlight          dark_mode
+    light_mode          cloud               umbrella
+    ac_unit             local_fire_department
+    weekend             chair               king_bed
+    savings             card_giftcard       redeem
+    workspace_premium   military_tech       key
+    pets                spa                 local_florist
