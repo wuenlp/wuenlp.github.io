@@ -28,6 +28,23 @@ const team = defineCollection({
     photo: z.string().optional(),   // URL or path under /public
     cartoon: z.string().optional(), // optional illustration shown on hover
     researchFocus: z.string().optional(),
+    // --- Personal profile page (all optional; empty sections are hidden) ---
+    bio: z.string().optional(),
+    education: z.array(z.object({
+      degree: z.string(),
+      institution: z.string().optional(),
+      period: z.string().optional(),
+    })).optional(),
+    experience: z.array(z.object({   // "Prior Jobs"
+      role: z.string(),
+      organization: z.string().optional(),
+      period: z.string().optional(),
+    })).optional(),
+    importantFacts: z.array(z.object({
+      label: z.string(),
+      value: z.string(),
+      icon: z.string().optional(),   // Material Symbols name, e.g. "pets"
+    })).optional(),
     linkedinUrl: z.string().optional(),
     scholarUrl: z.string().optional(),
     profileUrl: z.string().optional(),
@@ -62,12 +79,30 @@ const projects = defineCollection({
 });
 
 // --- News / Announcements ---
+// One file per year (e.g. 2026.md) holds all that year's news under `items:`.
+// Ordering on the page is by `date` (newest first) across every year file.
+const newsItem = z.object({
+  title: z.string(),
+  date: z.date(),
+  summary: z.string().optional(),   // the snippet text
+  // For single-paper / general posts: the whole snippet links here.
+  url: z.string().optional(),
+  // For posts about multiple accepted papers: instead of linking the whole
+  // snippet, each paper's title in the summary is linked. Give the `title`
+  // exactly as it appears in the text. The link points to the ACL Anthology
+  // PDF (`anthology`) when published, otherwise to `arxiv`.
+  papers: z.array(z.object({
+    title: z.string(),
+    anthology: z.string().optional(),
+    arxiv: z.string().optional(),
+  })).optional(),
+  image: z.string().optional(),
+});
+
 const news = defineCollection({
   loader: glob({ pattern: "**/*.md", base: "./src/content/news" }),
   schema: z.object({
-    title: z.string(),
-    date: z.date(),
-    image: z.string().optional(),
+    items: z.array(newsItem),
   })
 });
 
@@ -92,17 +127,30 @@ const settings = defineCollection({
 });
 
 // --- Courses (Teaching page) ---
+// A single file (src/content/courses/courses.md) holds all teaching, grouped by
+// semester. Each course names the section it belongs to via `type`; each
+// semester carries an explicit numeric `order` (higher = newer, shown first).
+const level = z.enum(['bachelor', 'master']);
+const courseSchema = z.object({
+  title: z.string(),
+  type: z.enum(['regular', 'seminar', 'praktikum']),  // section on the page
+  // Target degree(s): a single value or a list, e.g. `master` or `[bachelor, master]`.
+  level: z.union([level, z.array(level)]).optional(),
+  ects: z.union([z.number(), z.string()]).optional(),  // e.g. 5, or "10 (or 5)"
+  language: z.string().optional().default('English'),
+  lecturers: z.string().optional(),
+  url: z.string().optional(),
+  description: z.string().optional(),
+});
+
 const courses = defineCollection({
   loader: glob({ pattern: "**/*.md", base: "./src/content/courses" }),
   schema: z.object({
-    title: z.string(),
-    semester: z.string(),      // e.g. "Summer 2025"
-    type: z.string(),          // e.g. "Lecture", "Seminar", "Practical"
-    ects: z.number().optional(),
-    language: z.string().optional().default('English'),
-    lecturers: z.string().optional(),
-    url: z.string().optional(),
-    order: z.number().default(99),
+    semesters: z.array(z.object({
+      name: z.string(),          // e.g. "Winter Semester 26/27"
+      order: z.number(),         // higher = newer; semesters are shown highest-first
+      courses: z.array(courseSchema),
+    })),
   })
 });
 

@@ -1,0 +1,76 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+const settingsEntries = await getCollection('settings');
+const site = settingsEntries[0].data;
+
+const steps = [
+    'Browse our research and recent publications to find a direction that excites you.',
+    'Email us (caidas-nlp@uni-wuerzburg.de) with your CV, a current transcript, and a short note on your interests and background. Subject the email with "[Thesis application]"',
+    'If we accept you for the thesis at our Chair, we will meet to scope a concrete topic that fits your goals and our ongoing work, and agree on a timeline.',
+];
+---
+
+<Layout title="Theses">
+    <div class="px-6 md:px-12 max-w-screen-2xl mx-auto w-full">
+        <header class="mb-16">
+            <h1 class="font-headline text-5xl md:text-7xl font-bold text-primary leading-tight mb-4">Theses</h1>
+            <p class="text-xl font-body text-on-surface-variant">
+                We supervise Bachelor's and Master's theses across the full breadth of our research — natural
+                language processing, with a special focus on multilinguality and low-resource languages, vision-language models, and interpretability, fairness, and robustness. 
+            </p>
+        </header>
+
+        <!-- Bachelor / Master -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+            <div class="bg-surface-container-low rounded-xl p-8">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-label font-semibold bg-secondary text-on-secondary mb-4">Bachelor</span>
+                <h2 class="font-headline text-2xl font-bold mb-3">Bachelor's Theses</h2>
+                <p class="font-body text-on-surface-variant">
+                    A focused first research project — typically reproducing, extending, or carefully evaluating an
+                    existing method on a well-scoped problem. You will get hands-on with modern NLP tooling under
+                    close supervision.
+                </p>
+            </div>
+            <div class="bg-surface-container-low rounded-xl p-8">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-label font-semibold bg-primary text-on-primary mb-4">Master</span>
+                <h2 class="font-headline text-2xl font-bold mb-3">Master's Theses</h2>
+                <p class="font-body text-on-surface-variant">
+                    A deeper, more open-ended research effort that can lead to novel findings and, in the best case,
+                    a publication. Topics are often connected to our ongoing research projects and collaborations.
+                </p>
+            </div>
+        </div>
+
+        <!-- How to apply -->
+        <section class="mb-16 max-w-3xl">
+            <h2 class="font-headline text-3xl font-bold text-on-surface mb-8 border-l-4 border-primary pl-4">How to Apply</h2>
+            <ol class="space-y-6">
+                {steps.map((step, i) => (
+                    <li class="flex gap-4 items-start">
+                        <span class="shrink-0 w-8 h-8 rounded-full bg-primary text-on-primary font-label font-bold flex items-center justify-center">{i + 1}</span>
+                        <p class="font-body text-on-surface-variant pt-1">{step}</p>
+                    </li>
+                ))}
+            </ol>
+        </section>
+
+        <!-- Apply CTA -->
+        <div id="apply" class="hero-gradient text-white rounded-xl p-8 md:p-10 mb-20 ambient-shadow">
+            <h2 class="font-headline text-2xl md:text-3xl font-bold mb-3">Ready to apply?</h2>
+            <p class="font-body text-white/80 mb-6">
+                Send us your CV, a current transcript, and a few sentences on the topics you would like to work on.
+            </p>
+            {site.contactEmail && (
+                <a
+                    href={`mailto:${site.contactEmail}?subject=Thesis%20application`}
+                    class="inline-flex items-center gap-2 bg-white text-primary px-6 py-3 rounded-lg font-label font-semibold hover:bg-white/90 transition-colors"
+                >
+                    Apply by email
+                    <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+                </a>
+            )}
+        </div>
+    </div>
+</Layout>

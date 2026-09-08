@@ -1,0 +1,131 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+// One profile page per team member. The slug is the file id without its numeric
+// prefix (e.g. "01-glavas" -> "glavas"); TeamMemberCard links here with the same rule.
+export async function getStaticPaths() {
+    const team = await getCollection('team');
+    return team.map(member => ({
+        params: { slug: member.id.replace(/^\d+-/, '').toLowerCase() },
+        props: { member },
+    }));
+}
+
+const { member } = Astro.props;
+const m = member.data;
+const photo = m.photo || m.cartoon;
+
+const clean = (u?: string) => (u && u !== '#' ? u : null);
+const socials = [
+    { url: clean(m.linkedinUrl), label: 'LinkedIn', icon: 'link' },
+    { url: clean(m.scholarUrl), label: 'Google Scholar', icon: 'school' },
+    { url: clean(m.websiteUrl), label: 'Website', icon: 'language' },
+].filter(s => s.url);
+
+const education = m.education ?? [];
+const experience = m.experience ?? [];
+const facts = m.importantFacts ?? [];
+const isEmpty = !m.bio && education.length === 0 && experience.length === 0 && facts.length === 0;
+---
+
+<Layout title={m.name}>
+    <div class="px-6 md:px-12 max-w-screen-2xl mx-auto w-full">
+        <a href={`${import.meta.env.BASE_URL}team`} class="inline-flex items-center gap-1 font-label text-sm text-outline hover:text-primary transition-colors mb-10">
+            <span class="material-symbols-outlined text-[18px]">arrow_back</span> Back to team
+        </a>
+
+        <!-- Header -->
+        <header class="flex flex-col md:flex-row gap-8 md:gap-12 items-start mb-16">
+            {photo && (
+                <img src={photo} alt={m.name} class="w-48 h-60 md:w-56 md:h-72 object-cover rounded-xl ambient-shadow shrink-0" />
+            )}
+            <div class="flex-1">
+                <h1 class="font-headline text-4xl md:text-6xl font-bold text-primary leading-tight mb-2">{m.name}</h1>
+                <p class="font-label text-lg text-on-surface-variant mb-4">{m.role}</p>
+                {m.researchFocus && (
+                    <p class="font-body text-on-surface-variant max-w-2xl mb-6">{m.researchFocus}</p>
+                )}
+                {socials.length > 0 && (
+                    <div class="flex flex-wrap items-center gap-3">
+                        {socials.map(s => (
+                            <a href={s.url} target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-surface-container-low text-on-surface hover:bg-surface-container-high hover:text-primary transition-colors font-label text-sm font-medium">
+                                <span class="material-symbols-outlined text-[18px]">{s.icon}</span>{s.label}
+                            </a>
+                        ))}
+                    </div>
+                )}
+            </div>
+        </header>
+
+        {m.bio && (
+            <section class="mb-16 max-w-3xl">
+                <p class="font-body text-lg text-on-surface-variant leading-relaxed">{m.bio}</p>
+            </section>
+        )}
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
+            {education.length > 0 && (
+                <section>
+                    <h2 class="font-headline text-2xl font-bold text-on-surface mb-6 border-l-4 border-primary pl-4">Education</h2>
+                    <div class="space-y-4">
+                        {education.map(e => (
+                            <div class="bg-surface-container-low rounded-xl p-5 flex gap-4">
+                                <div class="w-10 h-10 bg-surface-container-lowest rounded-lg flex items-center justify-center shadow-sm shrink-0">
+                                    <span class="material-symbols-outlined text-xl text-primary">school</span>
+                                </div>
+                                <div>
+                                    <h3 class="font-headline font-semibold text-on-surface">{e.degree}</h3>
+                                    {e.institution && <p class="font-body text-sm text-on-surface-variant">{e.institution}</p>}
+                                    {e.period && <p class="font-label text-xs text-outline mt-1">{e.period}</p>}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </section>
+            )}
+
+            {experience.length > 0 && (
+                <section>
+                    <h2 class="font-headline text-2xl font-bold text-on-surface mb-6 border-l-4 border-primary pl-4">Prior Jobs</h2>
+                    <div class="space-y-4">
+                        {experience.map(x => (
+                            <div class="bg-surface-container-low rounded-xl p-5 flex gap-4">
+                                <div class="w-10 h-10 bg-surface-container-lowest rounded-lg flex items-center justify-center shadow-sm shrink-0">
+                                    <span class="material-symbols-outlined text-xl text-primary">work</span>
+                                </div>
+                                <div>
+                                    <h3 class="font-headline font-semibold text-on-surface">{x.role}</h3>
+                                    {x.organization && <p class="font-body text-sm text-on-surface-variant">{x.organization}</p>}
+                                    {x.period && <p class="font-label text-xs text-outline mt-1">{x.period}</p>}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </section>
+            )}
+        </div>
+
+        {facts.length > 0 && (
+            <section class="mb-20">
+                <h2 class="font-headline text-2xl font-bold text-on-surface mb-2 border-l-4 border-primary pl-4">Important Facts</h2>
+                <p class="font-body text-sm text-on-surface-variant mb-6 pl-5">The stuff that really matters.</p>
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {facts.map(f => (
+                        <div class="bg-surface-container-low rounded-xl p-5 hover:bg-surface-container-high transition-colors">
+                            <span class="material-symbols-outlined text-2xl text-primary mb-3 block">{f.icon || 'auto_awesome'}</span>
+                            <p class="font-label text-xs uppercase tracking-wider text-outline mb-1">{f.label}</p>
+                            <p class="font-body font-medium text-on-surface">{f.value}</p>
+                        </div>
+                    ))}
+                </div>
+            </section>
+        )}
+
+        {isEmpty && (
+            <div class="text-center py-16 text-on-surface-variant font-body mb-16">
+                This profile is a little empty for now. Add <code class="font-mono text-sm bg-surface-container px-2 py-0.5 rounded">bio</code>, <code class="font-mono text-sm bg-surface-container px-2 py-0.5 rounded">education</code>, <code class="font-mono text-sm bg-surface-container px-2 py-0.5 rounded">experience</code>, or <code class="font-mono text-sm bg-surface-container px-2 py-0.5 rounded">importantFacts</code> in this member's file under <code class="font-mono text-sm bg-surface-container px-2 py-0.5 rounded">src/content/team/</code>.
+            </div>
+        )}
+    </div>
+</Layout>
